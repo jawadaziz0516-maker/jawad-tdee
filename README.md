@@ -210,6 +210,13 @@ window.APP_CONFIG = {
 };
 ```
 
+3. Uncomment the `<script src="config.js">` tag in `index.html`. It ships
+   commented out because a missing `config.js` 404s, and with
+   `X-Content-Type-Options: nosniff` set that logs a console error on every
+   page load for a file most installs never have.
+
+`config.js` is gitignored — keep it that way, the repo is public.
+
 The adapter uses plain `fetch` against PostgREST — no SDK, no script tag. It
 keeps a local mirror, so a network failure degrades to offline rather than to
 data loss. **Read the RLS section of `schema.sql` before using it**: the

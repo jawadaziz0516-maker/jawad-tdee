@@ -31,18 +31,29 @@
 </div>
 
 <!--
-  config.js is optional. Create it next to this file to enable Supabase sync:
+  OPTIONAL CLOUD SYNC
 
-    window.APP_CONFIG = {
-      SUPABASE_URL: "https://xxxx.supabase.co",
-      SUPABASE_ANON_KEY: "...",
-      PROFILE_ID: "jawad",
-    };
+  By default everything is stored in this browser and works offline. To sync
+  across devices instead:
 
-  Without it the app stores everything in this browser and works offline.
-  The onerror handler keeps a missing file from logging a console error.
+    1. Run schema.sql in the Supabase SQL editor.
+    2. Create config.js next to this file:
+
+         window.APP_CONFIG = {
+           SUPABASE_URL: "https://xxxx.supabase.co",
+           SUPABASE_ANON_KEY: "...",
+           PROFILE_ID: "jawad",
+         };
+
+    3. Uncomment the script tag below.
+
+  The tag is commented out rather than left in with an onerror fallback: a
+  missing config.js still 404s, and because the site sends
+  X-Content-Type-Options: nosniff the browser logs a "refused to execute"
+  error that onerror does not suppress. Two red console errors on every page
+  load, for a file most installs will never have.
 -->
-<script src="config.js" onerror="this.remove()"></script>
+<!-- <script src="config.js"></script> -->
 
 <script type="module" src="src/app.js"></script>
 
