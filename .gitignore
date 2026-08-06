@@ -1,0 +1,16 @@
+# Supabase credentials live here. The anon key is designed to be public, but
+# the project URL plus a profile id is enough to read and overwrite that
+# profile's data under the RLS policies in schema.sql — so it stays out of a
+# public repo. See src/data/supabaseAdapter.js for the file's shape.
+config.js
+
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Vercel
+.vercel

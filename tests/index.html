@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ember — verification suite</title>
+<style>
+  :root {
+    --bg: #0a0908; --surface: #161412; --border: rgba(255,240,210,0.08);
+    --text: #f4ecd8; --muted: #a39884; --dim: #6b6457;
+    --pass: #6fae72; --fail: #d05a4a; --accent: #c9a961;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    font: 14px/1.5 'SF Mono', ui-monospace, Menlo, monospace;
+    padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .sub { color: var(--dim); margin-bottom: 24px; font-size: 13px; }
+  .summary {
+    position: sticky; top: 0; background: var(--bg); padding: 14px 0;
+    border-bottom: 1px solid var(--border); margin-bottom: 20px; z-index: 2;
+    display: flex; gap: 20px; align-items: baseline; flex-wrap: wrap;
+  }
+  .big { font-size: 26px; font-weight: 600; }
+  .ok { color: var(--pass); } .bad { color: var(--fail); }
+  .suite { margin-bottom: 22px; }
+  .suite h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--accent); margin-bottom: 8px; font-weight: 600;
+  }
+  .test {
+    display: flex; gap: 10px; padding: 5px 10px; border-radius: 6px;
+    align-items: baseline;
+  }
+  .test:nth-child(odd) { background: rgba(255,255,255,0.02); }
+  .mark { width: 14px; flex: none; }
+  .name { flex: 1; color: var(--muted); }
+  .test.fail .name { color: var(--text); }
+  .ms { color: var(--dim); font-size: 12px; flex: none; }
+  .err {
+    margin: 2px 0 8px 34px; padding: 8px 12px; border-left: 2px solid var(--fail);
+    background: rgba(208,90,74,0.08); color: #f0b9b1; font-size: 13px;
+    white-space: pre-wrap; border-radius: 0 6px 6px 0;
+  }
+  .running { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ember — verification suite</h1>
+  <p class="sub">
+    Physiological equations, statistical machinery, and an end-to-end recovery test
+    against synthetic data with a known true expenditure.
+  </p>
+  <div class="summary" id="summary"><span class="running">Running…</span></div>
+  <div id="output"></div>
+</div>
+
+<script type="module">
+  import { runAll } from './tests.js';
+
+  const output = document.getElementById('output');
+  const summary = document.getElementById('summary');
+
+  function renderSuite(suite) {
+    const el = document.createElement('section');
+    el.className = 'suite';
+    const failed = suite.tests.filter((t) => !t.ok).length;
+    el.innerHTML = `<h2>${escapeHtml(suite.name)} ${failed ? `<span class="bad">— ${failed} failing</span>` : ''}</h2>`;
+    for (const t of suite.tests) {
+      const row = document.createElement('div');
+      row.className = `test ${t.ok ? 'pass' : 'fail'}`;
+      row.innerHTML =
+        `<span class="mark ${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✕'}</span>` +
+        `<span class="name">${escapeHtml(t.name)}</span>` +
+        `<span class="ms">${t.ms.toFixed(1)}ms</span>`;
+      el.appendChild(row);
+      if (!t.ok) {
+        const err = document.createElement('div');
+        err.className = 'err';
+        err.textContent = t.error;
+        el.appendChild(err);
+      }
+    }
+    output.appendChild(el);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  const started = performance.now();
+  const { passed, failed, total } = await runAll(renderSuite);
+  const elapsed = performance.now() - started;
+
+  summary.innerHTML =
+    `<span class="big ${failed ? 'bad' : 'ok'}">${failed ? `${failed} failing` : 'All passing'}</span>` +
+    `<span>${passed}/${total} tests</span>` +
+    `<span class="ms">${elapsed.toFixed(0)}ms</span>`;
+
+  // Machine-readable hooks for the harness.
+  window.__TEST_RESULTS__ = { passed, failed, total };
+  document.title = failed ? `✕ ${failed} failing — Ember tests` : `✓ ${passed} passing — Ember tests`;
+  console.log(`[tests] ${passed}/${total} passing, ${failed} failing, ${elapsed.toFixed(0)}ms`);
+</script>
+</body>
+</html>
