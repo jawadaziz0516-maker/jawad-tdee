@@ -60,7 +60,10 @@
 </div>
 
 <script type="module">
-  import { runAll } from './tests.js';
+  // Absolute, not './tests.js'. Vercel's cleanUrls serves this file at /tests
+  // (no trailing slash), so a relative specifier resolves against / and 404s
+  // on /tests.js. Absolute works identically under the local dev server.
+  import { runAll } from '/tests/tests.js';
 
   const output = document.getElementById('output');
   const summary = document.getElementById('summary');
